@@ -34,7 +34,7 @@ const DoctorAppointments = () => {
   useEffect(() => {
     if (user && user._id) {
       try {
-        const socket = new WebSocket(`ws://localhost:3001`);
+        const socket = new WebSocket(process.env.WEB_SOCKET);
 
         socket.addEventListener("open", (event) => {
           console.log("Websocket connected hehe");
