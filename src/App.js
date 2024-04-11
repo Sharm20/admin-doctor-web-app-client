@@ -31,7 +31,6 @@ import EditProfile from "./pages/Admin/EditProfile";
 import EditDoctorProfile from "./pages/Doctor/EditDoctorProfile";
 import DoctorSidebar from "./components/DoctorSidebar";
 import EditSched from "./pages/Doctor/EditSched";
-import FloatingActionButtonZoom from "./components/Tabs";
 import DoctorAppointments from "./pages/Doctor/DoctorAppointments";
 import Patients from "./pages/Doctor/Patients";
 import CancelAppointment from "./pages/Doctor/CancelAppointment";
