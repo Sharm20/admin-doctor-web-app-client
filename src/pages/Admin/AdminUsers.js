@@ -31,7 +31,7 @@ const AdminUsers = () => {
   const userData = async () => {
     try {
       axios
-        .get(`http://localhost:8080/api/users/?search=${search}`)
+        .get(`${process.env.REACT_APP_SERVER_URL}/api/users/?search=${search}`)
         .then((user) => setAdminUsers(user.data))
         .catch((error) => console.log(error));
     } catch (error) {

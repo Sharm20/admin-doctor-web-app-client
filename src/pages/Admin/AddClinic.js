@@ -37,7 +37,7 @@ const AddClinic = () => {
 
       const newClinic = await axios({
         method: "POST",
-        url: "http://localhost:8080/api/clinics/create",
+        url: `${process.env.REACT_APP_SERVER_URL}/api/clinics/create`,
         data: {
           clinic_code: detail.clinic_code,
           floor: detail.floor,

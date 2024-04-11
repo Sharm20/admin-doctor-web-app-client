@@ -36,7 +36,7 @@ const AddDoctor = () => {
     const fetchData = async () => {
       try {
         const spn = await axios.get(
-          "http://localhost:8080/api/specializations/"
+          `${process.env.REACT_APP_SERVER_URL}/api/specializations/`
         );
 
         setSpecializations(spn.data);
@@ -45,7 +45,7 @@ const AddDoctor = () => {
       }
       try {
         const clinicsData = await axios.get(
-          "http://localhost:8080/api/clinics/"
+          `${process.env.REACT_APP_SERVER_URL}/api/clinics/`
         );
         setClinics(clinicsData.data);
       } catch (error) {
@@ -114,7 +114,7 @@ const AddDoctor = () => {
       } else {
         const newDoctor = await axios({
           method: "POST",
-          url: "http://localhost:8080/api/doctors/create",
+          url: `${process.env.REACT_APP_SERVER_URL}/api/doctors/create`,
           data: data,
         });
 

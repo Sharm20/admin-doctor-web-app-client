@@ -31,7 +31,7 @@ const EditSched = () => {
     const fetchDoctor = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/api/doctors/${user._id}`
+          `${process.env.REACT_APP_SERVER_URL}/api/doctors/${user._id}`
         );
         setDoctor(res.data.doctor);
         setClinics(res.data.clinics);
@@ -61,7 +61,7 @@ const EditSched = () => {
       console.log(data);
       const updateSchedule = await axios({
         method: "PUT",
-        url: `http://localhost:8080/api/doctors/${user._id}`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/doctors/${user._id}`,
         data: { schedule: schedule },
       });
 

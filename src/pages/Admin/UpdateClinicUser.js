@@ -21,7 +21,9 @@ const UpdateClinicUser = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/api/users/${id}`);
+        const res = await axios.get(
+          `${process.env.REACT_APP_SERVER_URL}/api/users/${id}`
+        );
         const user = res.data;
         console.log(user);
         setCredential({
@@ -53,7 +55,7 @@ const UpdateClinicUser = () => {
     try {
       const newClinicUser = await axios({
         method: "POST",
-        url: "http://localhost:8080/api/users/register",
+        url: `${process.env.REACT_APP_SERVER_URL}/api/users/register`,
         data: {
           ...credentials,
           confirmPassword: undefined,

@@ -47,7 +47,7 @@ const AddDoctorUser = () => {
     try {
       const newClinicUser = await axios({
         method: "POST",
-        url: "http://localhost:8080/api/users/register",
+        url: `${process.env.REACT_APP_SERVER_URL}/api/users/register`,
         data: {
           ...credentials,
           confirmPassword: undefined,

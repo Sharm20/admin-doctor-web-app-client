@@ -20,13 +20,17 @@ export const AuthContextProvider = ({ children }) => {
   //   login request
   const loginUser = async (userData) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/users/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...userData }),
-      });
+      console.log(process.env.REACT_APP_SERVER_URL);
+      const res = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/api/users/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...userData }),
+        }
+      );
       const result = await res.json();
       if (!result.error) {
         // console.log(result.user);
@@ -50,13 +54,16 @@ export const AuthContextProvider = ({ children }) => {
 
   const loginDoctor = async (userData) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/doctors/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...userData }),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/api/doctors/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...userData }),
+        }
+      );
       const result = await res.json();
       if (!result.error) {
         // console.log(result.user);

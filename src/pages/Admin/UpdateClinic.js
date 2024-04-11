@@ -38,7 +38,7 @@ const UpdateClinic = () => {
     const fetchData = async () => {
       try {
         const clinicResponse = await axios.get(
-          "http://localhost:8080/api/clinics/" + id
+          `${process.env.REACT_APP_SERVER_URL}/api/clinics/` + id
         );
 
         const clinic = clinicResponse.data;
@@ -63,7 +63,7 @@ const UpdateClinic = () => {
     try {
       const update = await axios({
         method: "PUT",
-        url: `http://localhost:8080/api/clinics/${id}`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/clinics/${id}`,
         data: {
           clinic_code: detail.clinic_code,
           floor: detail.floor,

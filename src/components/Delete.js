@@ -8,7 +8,7 @@ const Delete = ({ endpoint, id }) => {
   const handleDelete = async () => {
     try {
       const deleletItem = await axios.delete(
-        `http://localhost:8080/api/${endpoint}/${id}`
+        `${process.env.REACT_APP_SERVER_URL}/api/${endpoint}/${id}`
       );
 
       if (deleletItem) {

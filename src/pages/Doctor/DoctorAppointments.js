@@ -74,7 +74,7 @@ const DoctorAppointments = () => {
     try {
       const updatedApptStatus = await axios({
         method: "POST",
-        url: `http://localhost:8080/api/appointment-status/add`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/appointment-status/add`,
         data: { appointment_id: id, status: "Confirmed" },
       });
 
@@ -96,7 +96,7 @@ const DoctorAppointments = () => {
     try {
       const updatedApptStatus = await axios({
         method: "POST",
-        url: `http://localhost:8080/api/appointment-status/add`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/appointment-status/add`,
         data: { appointment_id: id, status: "Cancelled" },
       });
 

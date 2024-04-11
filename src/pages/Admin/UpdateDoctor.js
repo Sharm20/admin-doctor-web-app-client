@@ -43,7 +43,7 @@ const UpdateDoctor = () => {
       console.log(id);
       try {
         const doctorResponse = await axios.get(
-          "http://localhost:8080/api/doctors/" + id
+          `${process.env.REACT_APP_SERVER_URL}/api/doctors/` + id
         );
         const doctor = doctorResponse.data.doctor;
         const specializations = doctorResponse.data.specializations;
@@ -81,7 +81,7 @@ const UpdateDoctor = () => {
     const fetchData = async () => {
       try {
         const spn = await axios.get(
-          "http://localhost:8080/api/specializations/"
+          `${process.env.REACT_APP_SERVER_URL}/api/specializations/`
         );
         setSpecializations(spn.data);
       } catch (e) {
@@ -89,7 +89,7 @@ const UpdateDoctor = () => {
       }
       try {
         const clinicsData = await axios.get(
-          "http://localhost:8080/api/clinics/"
+          `${process.env.REACT_APP_SERVER_URL}/api/clinics/`
         );
         setClinics(clinicsData.data);
       } catch (error) {
@@ -171,7 +171,7 @@ const UpdateDoctor = () => {
     try {
       const newDoctor = await axios({
         method: "PUT",
-        url: `http://localhost:8080/api/doctors/${id}`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/doctors/${id}`,
         data: data,
       });
 

@@ -32,7 +32,7 @@ const Clinics = () => {
   const fetchData = async () => {
     try {
       const clinicResponse = await axios.get(
-        `http://localhost:8080/api/clinics/?offset=${offset}&limit=20&search=${search}`
+        `${process.env.REACT_APP_SERVER_URL}/api/clinics/?offset=${offset}&limit=20&search=${search}`
       );
       const clinicsData = clinicResponse.data;
       const clinicData = await Promise.all(
@@ -44,7 +44,7 @@ const Clinics = () => {
             const endPoint = Array.isArray(c.doctors) ? "/doctors-id" : "";
 
             const doctorsData = await axios.get(
-              `http://localhost:8080/api/doctors${endPoint}/${doctorsIds}`
+              `${process.env.REACT_APP_SERVER_URL}/api/doctors${endPoint}/${doctorsIds}`
             );
             const clinicDoctors = doctorsData.data;
             return { ...c, clinicDoctors };

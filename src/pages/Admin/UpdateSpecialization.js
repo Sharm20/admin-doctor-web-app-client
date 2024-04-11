@@ -22,7 +22,7 @@ const UpdateSpecialization = () => {
     const fetchData = async () => {
       try {
         const specializationsResponse = await axios.get(
-          `http://localhost:8080/api/specializations/${id}`
+          `${process.env.REACT_APP_SERVER_URL}/api/specializations/${id}`
         );
         const specialization = specializationsResponse.data;
         setDetail({
@@ -56,7 +56,7 @@ const UpdateSpecialization = () => {
     try {
       const update = await axios({
         method: "PUT",
-        url: `http://localhost:8080/api/specializations/${id}`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/specializations/${id}`,
         data: {
           specialty_name: detail.specialty_name,
           desc: detail.desc,

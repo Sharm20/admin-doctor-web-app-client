@@ -16,7 +16,7 @@ const CancelAppointment = () => {
     const fetchApptDetails = async () => {
       try {
         const appointmentData = await axios.get(
-          `http://localhost:8080/api/appointments/` + id
+          `${process.env.REACT_APP_SERVER_URL}/api/appointments/` + id
         );
 
         console.log(appointment.data);
@@ -33,7 +33,7 @@ const CancelAppointment = () => {
       console.log(id);
       const updatedApptStatus = await axios({
         method: "POST",
-        url: `http://localhost:8080/api/appointment-status/add`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/appointment-status/add`,
         data: { appointment_id: id, status: "Cancelled" },
       });
 

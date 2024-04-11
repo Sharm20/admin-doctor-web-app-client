@@ -37,7 +37,7 @@ const Doctors = () => {
   const fetchData = async () => {
     try {
       const doctor = await axios.get(
-        `http://localhost:8080/api/doctors?offset=${offset}&limit=10&search=${search}`
+        `${process.env.REACT_APP_SERVER_URL}/api/doctors?offset=${offset}&limit=10&search=${search}`
       );
       const doctorsData = doctor.data;
 
@@ -49,7 +49,7 @@ const Doctors = () => {
               : d.clinics.map((c) => c.clinic_id);
             const endPoint = Array.isArray(d.clinics) ? "/clinics-id" : "";
             const clinicsData = await axios.get(
-              `http://localhost:8080/api/clinics${endPoint}/${clinicsID}`
+              `${process.env.REACT_APP_SERVER_URL}/api/clinics${endPoint}/${clinicsID}`
             );
             const doctorClinics = clinicsData.data;
 
@@ -60,7 +60,7 @@ const Doctors = () => {
               ? "/specializations-id"
               : "";
             const specializationsData = await axios.get(
-              `http://localhost:8080/api/specializations/${specializationsEndPoint}/${specIDs}`
+              `${process.env.REACT_APP_SERVER_URL}/api/specializations/${specializationsEndPoint}/${specIDs}`
             );
             const doctorsSpecializations = specializationsData.data;
 

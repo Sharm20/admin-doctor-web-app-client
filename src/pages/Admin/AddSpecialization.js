@@ -33,7 +33,7 @@ const AddSpecialization = () => {
 
       const newSpecialization = await axios({
         method: "POST",
-        url: "http://localhost:8080/api/specializations/create",
+        url: `${process.env.REACT_APP_SERVER_URL}/api/specializations/create`,
         data: {
           specialty_name: detail.specialty_name,
           desc: detail.desc,

@@ -37,7 +37,7 @@ const Specializations = () => {
   const fetchData = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/specializations?offset=${offset}&limit=10&search=${search}`
+        `${process.env.REACT_APP_SERVER_URL}/api/specializations?offset=${offset}&limit=10&search=${search}`
       );
       const spec = res.data;
       const completeData = await Promise.all(
@@ -49,7 +49,7 @@ const Specializations = () => {
             const endPoint = Array.isArray(s.doctors) ? "/doctors-id" : "";
 
             const doctorsData = await axios.get(
-              `http://localhost:8080/api/doctors${endPoint}/${doctorsIds}`
+              `${process.env.REACT_APP_SERVER_URL}/api/doctors${endPoint}/${doctorsIds}`
             );
 
             const doctors = doctorsData.data;

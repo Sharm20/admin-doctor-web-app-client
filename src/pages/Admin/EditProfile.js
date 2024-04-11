@@ -52,7 +52,7 @@ const EditProfile = () => {
     try {
       const update = await axios({
         method: "PUT",
-        url: `http://localhost:8080/api/users/${user._id}`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/users/${user._id}`,
         data: {
           username: credentials.username,
           first_name: credentials.first_name,

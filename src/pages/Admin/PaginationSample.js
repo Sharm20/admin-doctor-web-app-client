@@ -21,7 +21,7 @@ const PaginationSample = () => {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/api/specializations?offset=${offset}&limit=10`
+          `${process.env.REACT_APP_SERVER_URL}/api/specializations?offset=${offset}&limit=10`
         );
         const data = res.data;
         setData((prev) => [...prev, ...data]);

@@ -28,7 +28,7 @@ const Appointments = () => {
   const fetchData = async () => {
     try {
       const appointment = await axios.get(
-        `http://localhost:8080/api/appointments?offset=${offset}&limit=15&search=${search}`
+        `${process.env.REACT_APP_SERVER_URL}/api/appointments?offset=${offset}&limit=15&search=${search}`
       );
       console.log(appointment.data);
       // const apptData = appointment.data;
@@ -36,11 +36,11 @@ const Appointments = () => {
         appointment.data.map(async (appt) => {
           try {
             const doctors = await axios.get(
-              `http://localhost:8080/api/doctors/${appt.doctor}`
+              `${process.env.REACT_APP_SERVER_URL}/api/doctors/${appt.doctor}`
             );
 
             const clinics = await axios.get(
-              `http://localhost:8080/api/clinics/${appt.clinic}`
+              `${process.env.REACT_APP_SERVER_URL}/api/clinics/${appt.clinic}`
             );
             const doctor = doctors.data ? doctors.data : "undefined";
             const clinic = clinics.data ? clinics.data : "undefined";

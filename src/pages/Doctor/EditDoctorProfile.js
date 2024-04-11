@@ -77,7 +77,7 @@ const EditDoctorProfile = () => {
     const fetchData = async () => {
       try {
         const spn = await axios.get(
-          "http://localhost:8080/api/specializations/"
+          `${process.env.REACT_APP_SERVER_URL}/api/specializations/`
         );
         setSpecializations(spn.data);
       } catch (e) {
@@ -85,7 +85,7 @@ const EditDoctorProfile = () => {
       }
       try {
         const clinicsData = await axios.get(
-          "http://localhost:8080/api/clinics/"
+          `${process.env.REACT_APP_SERVER_URL}/api/clinics/`
         );
         setClinics(clinicsData.data);
       } catch (error) {
@@ -188,7 +188,7 @@ const EditDoctorProfile = () => {
     try {
       const clearedOH = await axios({
         method: "PUT",
-        url: `http://localhost:8080/api/doctors/${user._id}`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/doctors/${user._id}`,
         data: { operating_hours: [], timeslots: [] },
       });
       console.log(clearedOH.data);
@@ -219,7 +219,7 @@ const EditDoctorProfile = () => {
       console.log(weeklySched);
       const operatingHours = await axios({
         method: "PUT",
-        url: `http://localhost:8080/api/doctors/${user._id}`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/doctors/${user._id}`,
         data: {
           operating_hours: weeklySched,
         },
@@ -230,7 +230,7 @@ const EditDoctorProfile = () => {
       await console.log(weeklySched);
       // console.log(user._id);
       const doctor_data = await axios.get(
-        `http://localhost:8080/api/doctors/${user._id}`
+        `${process.env.REACT_APP_SERVER_URL}/api/doctors/${user._id}`
       );
       console.log(doctor_data.data.operating_hours);
 
@@ -275,7 +275,7 @@ const EditDoctorProfile = () => {
     try {
       const newDoctor = await axios({
         method: "PUT",
-        url: `http://localhost:8080/api/doctors/${user._id}`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/doctors/${user._id}`,
         data: data,
       });
 

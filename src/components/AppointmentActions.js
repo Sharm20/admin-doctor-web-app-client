@@ -16,7 +16,7 @@ const AppointmentActions = () => {
     try {
       const updatedApptStatus = await axios({
         method: "POST",
-        url: `http://localhost:8080/api/appointment-status/add`,
+        url: `${process.env.SERVER_URL}/api/appointment-status/add`,
         data: { appointment_id: id, status: "Cancelled" },
       });
 
