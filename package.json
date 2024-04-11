@@ -58,5 +58,8 @@
   },
   "main": "App.js",
   "author": "Sharmaine",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+  }
 }

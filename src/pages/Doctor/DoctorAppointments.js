@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import axios from "axios";
 import { toast } from "react-toastify";
-import SwipeableViews from "react-swipeable-views";
+import SwipeableViews from "react-swipeable-views-react-18-fix";
 import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
