@@ -20,7 +20,7 @@ const Patients = () => {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    const socket = new WebSocket(`ws://localhost:3001`);
+    const socket = new WebSocket(process.env.REACT_APP_WEB_SOCKET_URL);
 
     socket.addEventListener("open", (event) => {
       console.log("Websocket connected");
