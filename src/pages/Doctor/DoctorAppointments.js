@@ -34,7 +34,8 @@ const DoctorAppointments = () => {
   useEffect(() => {
     if (user && user._id) {
       try {
-        const socket = new WebSocket(process.env.WEB_SOCKET);
+        console.log(process.env.WEB_SOCKET_URL);
+        const socket = new WebSocket(`ws://localhost:3001`);
 
         socket.addEventListener("open", (event) => {
           console.log("Websocket connected hehe");
@@ -230,7 +231,9 @@ const DoctorAppointments = () => {
                       <a> Patient Notes: {a.appointment_notes}</a>
                       <> </>
                       <Button
-                        onClick={() => {}}
+                        onClick={() => {
+                          acceptAppointment(a._id);
+                        }}
                         sx={{
                           color: "white",
                           width: "100px",
