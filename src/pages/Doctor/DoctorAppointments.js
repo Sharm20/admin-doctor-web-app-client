@@ -195,17 +195,6 @@ const DoctorAppointments = () => {
     { name: "December" },
   ];
 
-  const AppointmentsComponent = ({
-    appointments,
-    dateFilter,
-    doneAppointment,
-    doctor,
-  }) => {
-    const currentTime = new Date();
-  };
-
-  const currentTime = new Date();
-
   return (
     <div className="mt-3">
       <div style={{ position: "fixed" }}>

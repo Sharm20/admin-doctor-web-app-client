@@ -15,12 +15,15 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { toast } from "react-toastify";
 import { Menu } from "@mui/material";
+import { format } from "date-fns";
 
 const AddAppointment = () => {
   const { user } = useContext(AuthContext);
   const [otherFields, setOtherFields] = useState({
     date: "",
     timeslot: "",
+    start: "",
+    end: "",
     appointment_notes: "",
   });
   const [patient, setPatient] = useState({
@@ -47,18 +50,6 @@ const AddAppointment = () => {
   const [timeslots, setTimeSlots] = useState([]);
 
   useEffect(() => {
-    const fetchClinics = async () => {
-      const response = await axios.get(
-        `${process.env.REACT_APP_SERVER_URL}/api/doctors/${user._id}`
-      );
-
-      setClinicOptions(response?.data.clinics);
-      return;
-    };
-    fetchClinics();
-  }, []);
-
-  useEffect(() => {
     const getBookingAndWalkInTimeSlots = async () => {
       if (chosenDate) {
         console.log("chosen date: ", chosenDate);
@@ -70,16 +61,24 @@ const AddAppointment = () => {
           );
           if (response && response.data) {
             setTimeSlots(response.data);
+            console.log(response.message);
             return;
           }
         } catch (err) {
-          console.log(err);
+          if (err.response) {
+            const errorMessage = err.response.data.message;
+            toast.error(errorMessage);
+          } else if (err.request) {
+            toast.error("No response from server");
+          } else {
+            toast.error("Request failed");
+          }
           return;
         }
       }
     };
     getBookingAndWalkInTimeSlots();
-  }, [chosenDate]);
+  }, [otherFields.date, chosenDate]);
   console.log(timeslots);
 
   const handlePatient = (e) => {
@@ -87,31 +86,38 @@ const AddAppointment = () => {
     setPatient({ ...patient, [name]: value });
   };
 
+  const handlePatientDob = (e) => {
+    setPatient({ ...patient, date_of_birth: e.$d.toISOString() });
+  };
+
   const handleGender = (e) => {
     setPatient({ ...patient, gender: e.target.value });
   };
 
-  const handleClinic = (e) => {
-    const selectedClinic = e.target.value;
-    console.log("selected clinic: ", selectedClinic);
-    const clinicref = clinicOpttions.find(
-      (c) => c.clinic_code === selectedClinic
+  const handleTimeslot = (e) => {
+    const selectedTime = e.target.value;
+    const timeslotData = timeslots.bookable.find(
+      (ts) => ts.timeslot_id === selectedTime
     );
+    console.log("chosen timeslot: ", timeslotData);
+    setOtherFields({
+      ...otherFields,
+      timeslot: e.target.value,
+      start: timeslotData.start,
+      end: timeslotData.end,
+    });
     setClinic({
       ...clinic,
-      clinic_id: clinicref._id,
-      clinic_code: e.target.value,
+      clinic_id: timeslotData.clinic_id,
+      clinic_code: timeslotData.clinic_code,
     });
-  };
-
-  const handleTimeslot = (e) => {
-    setOtherFields({ ...otherFields, timeslot: e.target.value });
   };
 
   const handleDate = (e) => {
     setOtherFields({ ...otherFields, date: e.$d.toISOString() });
-    setChosenDate(e.toISOString());
+    setChosenDate(e.$d.toISOString());
   };
+  console.log("chosen date: ", chosenDate);
 
   // console.log(patient);
 
@@ -120,7 +126,11 @@ const AddAppointment = () => {
 
     const appointmentData = {
       date: otherFields.date,
-      timeslot: otherFields.timeslot,
+      timeslot: {
+        id: otherFields.timeslot,
+        start: otherFields.start,
+        end: otherFields.end,
+      },
       appointment_notes: otherFields.appointment_notes,
       patient: {
         first_name: patient.first_name,
@@ -138,6 +148,46 @@ const AddAppointment = () => {
         doctor_last_name: user.last_name,
       },
     };
+
+    try {
+      const appointment = await axios({
+        method: "POST",
+        url: `${process.env.REACT_APP_SERVER_URL}/api/appointments/create`,
+        data: appointmentData,
+      });
+
+      if (appointment.data) {
+        toast.info(appointment.data.message, { autoClose: false });
+        console.log(appointment.data);
+        try {
+          const textSMS = await axios({
+            method: "POST",
+            url: `${process.env.REACT_APP_SERVER_URL}/api/sms/send-sms`,
+            data: {
+              phoneNumber: patient.contact_num,
+              message: `Good day Mr/Ms. ${
+                patient.first_name
+              }! You have an appointment with Dr. ${user.last_name} at Clinic ${
+                clinic.clinic_code
+              }, on ${format(appointmentData.date, "MMMM d, yyy")} at ${
+                otherFields.start + " - " + otherFields.end
+              }. We are hoping to see you!`,
+              sender_id: doctor._id,
+            },
+          });
+          if (textSMS.data) {
+            toast.success("Text notification sent!");
+          }
+        } catch (error) {
+          toast.error(error.response.data.error);
+        }
+      }
+    } catch (error) {
+      if (error.response) {
+        const errorMessage = error.response.data.error;
+        toast.error(errorMessage, { autoClose: false });
+      }
+    }
 
     console.log("Appointment: ", appointmentData);
   };
@@ -194,10 +244,17 @@ const AddAppointment = () => {
                               value={ts.timeslot_id}
                               disabled={!ts.is_available}
                             >
-                              {ts.start}
+                              <div className="row justify-content-between">
+                                <b className="col-auto">
+                                  {ts.start + " - " + ts.end}
+                                </b>
+                                <p className="col-auto">
+                                  Clinic {ts.clinic_code}
+                                </p>
+                              </div>
                             </MenuItem>
                           ))
-                        : ""}
+                        : "No available schedule for that date"}
                     </Select>
                   </FormControl>
                 </Box>
@@ -215,33 +272,6 @@ const AddAppointment = () => {
                   className="form-group d-flex flex-column mt-3"
                   style={{ width: "400px" }}
                 >
-                  <Box>
-                    <FormControl fullWidth>
-                      <InputLabel
-                        id="demo-simple-select-label"
-                        sx={{ marginTop: "20px" }}
-                      >
-                        Clinic
-                      </InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={clinic.clinic_code}
-                        onChange={handleClinic}
-                        sx={{ marginTop: "20px" }}
-                      >
-                        {clinicOpttions.map((clinic) => (
-                          <MenuItem
-                            key={clinic._id}
-                            value={clinic.clinic_code}
-                            name={clinic.clinic_id}
-                          >
-                            {clinic.clinic_code}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Box>
                   <TextField
                     id="standard-basic"
                     label="Add note (optional)"
@@ -293,14 +323,12 @@ const AddAppointment = () => {
                   value={patient.contact_num}
                   name="contact_num"
                 />
-                <TextField
-                  id="standard-basic"
-                  label="Date of Birth"
-                  variant="standard"
-                  onChange={handlePatient}
-                  value={patient.date_of_birth}
-                  name="date_of_birth"
-                />
+                <div className="mt-3">
+                  <DatePicker
+                    label="Date of birth"
+                    onChange={handlePatientDob}
+                  />
+                </div>
                 <Box sx={{ width: "200px" }}>
                   <FormControl fullWidth>
                     <InputLabel

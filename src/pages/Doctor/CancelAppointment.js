@@ -48,7 +48,7 @@ const CancelAppointment = () => {
           url: `${process.env.REACT_APP_SERVER_URL}/api/sms/send-sms`,
           data: {
             phoneNumber: appointment?.patient.contact_num,
-            message: `Good day Mr/Ms. ${appointment.patient.first_name} ${appointment.patient.last_name}, Your appointment with a reference number: ${appointment.reference_num} has been cancelled.`,
+            message: `Good day Mr/Ms. ${appointment.patient.first_name} ${appointment.patient.last_name}, Your appointment with a reference number "${appointment.reference_num}" has been cancelled.`,
             sender_id: appointment?.doctor._id,
           },
         });
@@ -59,7 +59,7 @@ const CancelAppointment = () => {
           url: `${process.env.REACT_APP_SERVER_URL}/api/sms/send-sms`,
           data: {
             phoneNumber: appointment?.patient.contact_num,
-            message: `Good day Mr/Ms. ${appointment.patient.first_name} ${appointment.patient.last_name}, Your appointment with a reference number: ${appointment.reference_num} has been cancelled. Reason for cancellation: ${reason}`,
+            message: `Good day Mr/Ms. ${appointment.patient.first_name} ${appointment.patient.last_name}, Your appointment with a reference number "${appointment.reference_num}" has been cancelled. Reason for cancellation: ${reason}`,
             sender_id: appointment?.doctor._id,
           },
         });
@@ -67,7 +67,7 @@ const CancelAppointment = () => {
       }
 
       if (updatedApptStatus) {
-        toast.success("Appointment Cancelled!");
+        toast.info("Appointment Cancelled.");
       }
     } catch (error) {
       console.log(error);
@@ -112,7 +112,10 @@ const CancelAppointment = () => {
           </h5>
           <>{appointment.reference_num}</>
           <a>CLINIC: {appointment.clinic?.clinic_code}</a>
-          <a>TIMESLOT: {appointment.timeslot}</a>
+          <a>
+            TIMESLOT:{" "}
+            {appointment.timeslot?.start + " - " + appointment.timeslot?.end}
+          </a>
           {/* <a>BOOKED AT: {format(appointment.createdAt, "MMMM d, yyyy")}</a> */}
           <a> Patient Notes: {appointment.appointment_notes}</a>
         </div>
