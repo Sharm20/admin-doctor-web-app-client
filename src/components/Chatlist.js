@@ -90,7 +90,7 @@ const Chatlist = () => {
             />
           </div>
           {messages
-            .filter((message) => {
+            ?.filter((message) => {
               return message.sender?.first_name
                 ?.toLowerCase()
                 .includes(search.toLowerCase());

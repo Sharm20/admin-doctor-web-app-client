@@ -199,15 +199,21 @@ const EditSched = () => {
       );
 
       const result = await calendar.data;
-      if (!result.error) {
-        console.log(result.error);
-        toast.info("Doctor Calendar Updated");
-        return;
-      } else {
-        toast.error(calendar.error);
+
+      if (result) {
+        console.log("calendar: ", result);
+        toast.info(result.message);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response) {
+        const errorMessage = error.response.data.error;
+        toast.error(errorMessage);
+        // window.location.reload();
+      } else if (error.request) {
+        toast.error("No response from server");
+      } else {
+        toast.error("Request failed");
+      }
       return;
     }
   };

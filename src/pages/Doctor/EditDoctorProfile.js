@@ -15,6 +15,8 @@ import TextField from "@mui/material/TextField";
 import { toast } from "react-toastify";
 import { Button } from "@mui/material";
 import Chip from "@mui/material/Chip";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const EditDoctorProfile = () => {
   const { user } = useContext(AuthContext);
@@ -57,9 +59,12 @@ const EditDoctorProfile = () => {
     navigate("/");
     toast.success("Logged out");
   };
-  // const [selectedDays, setSelectedDays] = useState(Days);
-  // console.log(clinics);
-  // const [days, setDays] = useState(Days);
+
+  let hasSixChar = detail.newPassword.length >= 6;
+  let hasLowerChar = /(.*[a-z].*)/.test(detail.newPassword);
+  let hasUpperChar = /(.*[A-Z].*)/.test(detail.newPassword);
+  let hasNumber = /(.*[0-9].*)/.test(detail.newPassword);
+  let hasSpecialChar = /(.*[^a-zA-Z0-9].*)/.test(detail.newPassword);
 
   useEffect(() => {
     setDetail({
@@ -269,6 +274,15 @@ const EditDoctorProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (
+      detail.newPassword &&
+      (!hasLowerChar || !hasUpperChar || !hasNumber || !hasSixChar)
+    ) {
+      toast.error("New Password does not meet the criteria.");
+      return;
+    }
+
     const data = {
       last_name: detail.last_name,
       first_name: detail.first_name,
@@ -280,6 +294,7 @@ const EditDoctorProfile = () => {
       is_active: is_active,
       specializations: detail.specializations,
       clinics: detail.clinics,
+      confirmPassword: detail.confirmPassword,
       password: detail.password,
       newPassword: detail.newPassword,
     };
@@ -291,7 +306,6 @@ const EditDoctorProfile = () => {
       });
 
       if (data.newPassword && newDoctor.data) {
-        // toast.success("CHANGES SAVED");
         logout();
       }
 
@@ -453,14 +467,10 @@ const EditDoctorProfile = () => {
                   />
                 )}
                 sx={{ width: "485px" }}
-                // value={detail.specializations?.map((s) => s.specialty_name)}
               />
             </div>
 
             <div className="mt-3"></div>
-            {/* <div className="form-group">
-            <DynamicInput />{" "}
-          </div> */}
 
             <div></div>
             <Box sx={{ width: "200px" }}>
@@ -533,7 +543,6 @@ const EditDoctorProfile = () => {
                     Old Password
                   </label>
                   <input
-                    type="password" //makes it dots
                     className="form-control"
                     id="passwordInput"
                     name="password"
@@ -548,22 +557,108 @@ const EditDoctorProfile = () => {
                     New Password
                   </label>
                   <input
-                    type="password" //makes it dots
                     className="form-control"
                     id="passwordInput"
                     name="newPassword"
                     value={detail.newPassword}
                     onChange={handleInput}
+                    pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}"
+                    title="Password must contain at least 6 characters, including at least one uppercase letter, one lowercase letter, and one number."
                     placeholder="enter new password"
+                    minLength={6}
                     required
                   />
+                  {detail.newPassword && (
+                    <div className="strict ml-1 mt-2" style={{ columns: 2 }}>
+                      <div>
+                        {hasSixChar ? (
+                          <span className="text-success">
+                            <CheckCircleIcon
+                              className="mr-1"
+                              fontSize="small"
+                            />
+                            <small>at least 6 characters</small>
+                          </span>
+                        ) : (
+                          <span className="text-danger">
+                            <CancelIcon className="mr-1" fontSize="small" />
+                            <small>at least 6 characters</small>
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        {hasLowerChar ? (
+                          <span className="text-success">
+                            <CheckCircleIcon
+                              className="mr-1"
+                              fontSize="small"
+                            />
+                            <small>one lowercase</small>
+                          </span>
+                        ) : (
+                          <span className="text-danger">
+                            <CancelIcon className="mr-1" fontSize="small" />
+                            <small>one lowercase</small>
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        {hasUpperChar ? (
+                          <span className="text-success">
+                            <CheckCircleIcon
+                              className="mr-1"
+                              fontSize="small"
+                            />
+                            <small>one uppercase</small>
+                          </span>
+                        ) : (
+                          <span className="text-danger">
+                            <CancelIcon className="mr-1" fontSize="small" />
+                            <small>one uppercase</small>
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        {hasNumber ? (
+                          <span className="text-success">
+                            <CheckCircleIcon
+                              className="mr-1"
+                              fontSize="small"
+                            />
+                            <small>one number</small>
+                          </span>
+                        ) : (
+                          <span className="text-danger">
+                            <CancelIcon className="mr-1" fontSize="small" />
+                            <small>one number</small>
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        {hasSpecialChar ? (
+                          <span className="text-success">
+                            <CheckCircleIcon
+                              className="mr-1"
+                              fontSize="small"
+                            />
+                            <small>one special symbol</small>
+                          </span>
+                        ) : (
+                          <span className="text-danger">
+                            <CancelIcon className="mr-1" fontSize="small" />
+                            <small>one special symbol</small>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
+
                 <div className="form-group">
                   <label htmlFor="confirmPassword" className="form-label mt-4">
                     Confirm Password
                   </label>
                   <input
-                    type="password" //makes it dots
                     className="form-control"
                     id="confirmPassword"
                     name="confirmPassword"

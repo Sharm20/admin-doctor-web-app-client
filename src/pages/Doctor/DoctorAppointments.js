@@ -78,10 +78,6 @@ const DoctorAppointments = () => {
   // console.log(appointments);
 
   const acceptAppointment = async (id, patient, timeslot, date) => {
-    const time = doctor.timeslots
-      .filter((t) => t._id === timeslot)
-      .map((ft) => ft.start + " - " + ft.end);
-
     const formattedDate = format(date, "MMMM d, yyyy");
 
     try {
@@ -96,7 +92,11 @@ const DoctorAppointments = () => {
         url: `${process.env.REACT_APP_SERVER_URL}/api/sms/send-sms`,
         data: {
           phoneNumber: patient.contact_num,
-          message: `Good day Mr/Ms. ${patient.first_name}! We're glad to inform you that your appointment on ${formattedDate} at ${time} has been ACCEPTED`,
+          message: `Good day Mr/Ms. ${
+            patient.first_name
+          }! We're glad to inform you that your appointment on ${formattedDate} at ${
+            timeslot.start + " - " + timeslot.end
+          } has been ACCEPTED`,
           sender_id: doctor._id,
         },
       });
@@ -315,12 +315,14 @@ const DoctorAppointments = () => {
                       <a>DATE: {format(a.date, "MMMM d, yyyy")}</a>
                       <a>
                         TIME:{" "}
-                        {doctor.timeslots
-                          .filter((t) => t._id === a.timeslot)
-                          .map((ft) => ft.start + " - " + ft.end)}
+                        {a.timeslot.start + " " + a.timeslot.end || a.timeslot}
                       </a>
                       <a>BOOKED AT: {format(a.createdAt, "MMMM d, yyyy")}</a>
-                      <a> Patient Notes: {a.appointment_notes}</a>
+                      <a>
+                        {" "}
+                        Patient Notes:{" "}
+                        {a.appointment_notes ? a.appointment_notes : "None"}
+                      </a>
                       <a>Contact Number: {a.patient.contact_num}</a>
                       <> </>
                       <Button
@@ -456,7 +458,11 @@ const DoctorAppointments = () => {
                           .map((ft) => ft.start + " - " + ft.end)}
                       </a>
                       <a>BOOKED AT: {format(a.createdAt, "MMMM d, yyyy")}</a>
-                      <a> Patient Notes: {a.appointment_notes}</a>
+                      <a>
+                        {" "}
+                        Patient Notes:{" "}
+                        {a.appointment_notes ? a.appointment_notes : "None"}
+                      </a>
                       <a>Contact Number: {a.patient.contact_num}</a>
                       <> </>
                       <Button
@@ -552,7 +558,11 @@ const DoctorAppointments = () => {
                           .map((ft) => ft.start + " - " + ft.end)}
                       </a>
                       <a>BOOKED AT: {format(a.createdAt, "MMMM d, yyyy")}</a>
-                      <a> Patient Notes: {a.appointment_notes}</a>
+                      <a>
+                        {" "}
+                        Patient Notes:{" "}
+                        {a.appointment_notes ? a.appointment_notes : "None"}
+                      </a>
                       <a>Contact Number: {a.patient.contact_num}</a>
                       <> </>
                     </Paper>
@@ -605,7 +615,11 @@ const DoctorAppointments = () => {
                           .map((ft) => ft.start + " - " + ft.end)}
                       </a>
                       <a>BOOKED AT: {format(a.createdAt, "MMMM d, yyyy")}</a>
-                      <a> Patient Notes: {a.appointment_notes}</a>
+                      <a>
+                        {" "}
+                        Patient Notes:{" "}
+                        {a.appointment_notes ? a.appointment_notes : "None"}
+                      </a>
                       <a>Contact Number: {a.patient.contact_num}</a>
                       <> </>
                     </Paper>
