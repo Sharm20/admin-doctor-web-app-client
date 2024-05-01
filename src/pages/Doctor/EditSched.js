@@ -41,12 +41,16 @@ const EditSched = () => {
         const dayData = doctorData.operating_hours.map((oh) => oh.day);
 
         setDays(getDayLabel(dayData));
+        return;
       } catch (error) {
         console.log(error);
+        return;
       }
     };
     fetchDoctor();
   }, []);
+
+  console.log(clinics);
 
   // console.log(days);
   // console.log(timeslots);
@@ -105,17 +109,21 @@ const EditSched = () => {
   // const timeslotsMatch = doctor.timeslots.map((t) => t.day === selectedDay);
 
   const handleWalkinTimeslots = (index, v) => {
-    const ids = v.map((t) => {
+    const timeslot_obj = v.map((t) => {
       const selectedslots = timeslots.find(
         (opt) => opt.start + " - " + opt.end === t
       );
-      return selectedslots ? selectedslots._id : "undefined";
+
+      return selectedslots ? selectedslots : "undefined";
     });
-    console.log(ids);
-    const timeslotObjects = ids.map((timeslot_id) => ({
-      timeslot_id,
+    console.log(timeslot_obj.map((ts) => ts._id));
+    const timeslotObjects = timeslot_obj.map((timeslot) => ({
+      timeslot_id: timeslot._id,
+      start: timeslot.start,
+      end: timeslot.end,
       is_available: true,
     }));
+    console.log(timeslotObjects);
     const updatedSchedule = [...schedule];
     updatedSchedule[index].walk_in = timeslotObjects;
     setSchedule(updatedSchedule);
@@ -123,17 +131,21 @@ const EditSched = () => {
   };
 
   const handleBookingTimeslots = (index, v) => {
-    const ids = v.map((t) => {
+    const timeslot_obj = v.map((t) => {
       const selectedslots = timeslots.find(
         (opt) => opt.start + " - " + opt.end === t
       );
-      return selectedslots ? selectedslots._id : "undefined";
+
+      return selectedslots ? selectedslots : "undefined";
     });
-    console.log(ids);
-    const timeslotObjects = ids.map((timeslot_id) => ({
-      timeslot_id,
+    console.log(timeslot_obj.map((ts) => ts._id));
+    const timeslotObjects = timeslot_obj.map((timeslot) => ({
+      timeslot_id: timeslot._id,
+      start: timeslot.start,
+      end: timeslot.end,
       is_available: true,
     }));
+    console.log(timeslotObjects);
     const updatedSchedule = [...schedule];
     updatedSchedule[index].booking = timeslotObjects;
     setSchedule(updatedSchedule);
@@ -180,10 +192,43 @@ const EditSched = () => {
     console.log(updatedSchedule);
   };
 
+  const handleCreateCalendar = async () => {
+    try {
+      const calendar = await axios.post(
+        `${process.env.REACT_APP_SERVER_URL}/api/calendar/${user._id}`
+      );
+
+      const result = await calendar.data;
+      if (!result.error) {
+        console.log(result.error);
+        toast.info("Doctor Calendar Updated");
+        return;
+      } else {
+        toast.error(calendar.error);
+      }
+    } catch (error) {
+      console.log(error);
+      return;
+    }
+  };
   return (
     <>
       <h3 className="mt-3"> EDIT DOCTOR SCHEDULE</h3>
       <div className="d-flex flex-column">
+        <div className="col-auto" style={{ position: "fixed", left: "70%" }}>
+          <Button
+            onClick={handleCreateCalendar}
+            value="set Operating Hours"
+            sx={{
+              color: "black",
+              marginTop: "10px",
+              border: "1px solid black",
+            }}
+            variant="outlined"
+          >
+            Update Calendar
+          </Button>
+        </div>
         <div className="add-pages-container ml-5 mt-5 mb-5 col-10 col-sm-8 col-md-6 col-lg-5">
           <div className="form-group">
             <label htmlFor="clinic_code" className="form-label mt-2">

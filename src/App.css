@@ -222,3 +222,17 @@ body .list .list-item {
     margin-left: 100px;
     left: 100px;
 }
+
+.appointments-container {
+    width: "300px";
+    height: "fit-content";
+    text-align: "left";
+    padding: "10px";
+    box-shadow: "0 1px 1px";
+    border-radius: "10px";
+    border: "1px solid #ccc";
+    margin-left: "10px";
+    margin-bottom: "10px";
+    display: flex;
+    flex-direction: column;
+}

@@ -1,8 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
+import "../../App.css";
 import AuthContext from "../../context/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
-import { format } from "date-fns";
-import AppointmentActions from "../../components/AppointmentActions";
+import { Form, Link, useNavigate } from "react-router-dom";
+import { format, isAfter, isBefore } from "date-fns";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
@@ -13,23 +17,24 @@ import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import PropTypes from "prop-types";
-import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
-import Dialog from "@mui/material/Dialog";
 import Box from "@mui/material/Box";
-import styled from "@emotion/styled";
+import { blueGrey } from "@mui/material/colors";
+import Paper from "@mui/material/Paper";
+import IconButton from "@mui/material/IconButton";
+import AddIcon from "@mui/icons-material/Add";
+
 // import { Dialog } from "@mui/material";
 
 const DoctorAppointments = () => {
+  const navigate = useNavigate();
+  const now = new Date();
   const [changeStatus, setChangeStatus] = useState(false);
   const [doctor, setDoctor] = useState({});
   const [appointments, setAppointments] = useState([]);
   const { user } = useContext(AuthContext);
   const [value, setValue] = useState(0);
-  const [openModals, setOpenModals] = useState(
-    Array(4).fill(Array(appointments.length).fill(false))
-  );
+  const [dateFilter, setDateFilter] = useState(format(now, "MMMM"));
 
   useEffect(() => {
     if (user && user._id) {
@@ -46,6 +51,7 @@ const DoctorAppointments = () => {
           const message = JSON.parse(e.data);
           console.log("received mmessage: ", message);
           // console.log(message.data);
+
           setDoctor(message.doctor);
           setAppointments(message.appointments);
           setChangeStatus(false);
@@ -71,7 +77,13 @@ const DoctorAppointments = () => {
   // console.log(doctor);
   // console.log(appointments);
 
-  const acceptAppointment = async (id) => {
+  const acceptAppointment = async (id, patient, timeslot, date) => {
+    const time = doctor.timeslots
+      .filter((t) => t._id === timeslot)
+      .map((ft) => ft.start + " - " + ft.end);
+
+    const formattedDate = format(date, "MMMM d, yyyy");
+
     try {
       const updatedApptStatus = await axios({
         method: "POST",
@@ -79,7 +91,17 @@ const DoctorAppointments = () => {
         data: { appointment_id: id, status: "Confirmed" },
       });
 
-      console.log(updatedApptStatus.data);
+      await axios({
+        method: "POST",
+        url: `${process.env.REACT_APP_SERVER_URL}/api/sms/send-sms`,
+        data: {
+          phoneNumber: patient.contact_num,
+          message: `Good day Mr/Ms. ${patient.first_name}! We're glad to inform you that your appointment on ${formattedDate} at ${time} has been ACCEPTED`,
+          sender_id: doctor._id,
+        },
+      });
+      // console.log(time);
+      // console.log(updatedApptStatus.data);
       if (updatedApptStatus) {
         toast.success("Appointment Approved!");
         setChangeStatus(true);
@@ -93,17 +115,17 @@ const DoctorAppointments = () => {
     console.log(id);
   };
 
-  const cancelAppointment = async (id) => {
+  const doneAppointment = async (id) => {
     try {
       const updatedApptStatus = await axios({
         method: "POST",
         url: `${process.env.REACT_APP_SERVER_URL}/api/appointment-status/add`,
-        data: { appointment_id: id, status: "Cancelled" },
+        data: { appointment_id: id, status: "Completed" },
       });
 
       // console.log(updatedApptStatus.data);
       if (updatedApptStatus) {
-        toast.success("Appointment Cancelled!");
+        toast.success("Appointment Done!");
         setChangeStatus(true);
         // console.log(changeStatus);
       }
@@ -112,11 +134,6 @@ const DoctorAppointments = () => {
       toast.error("Error");
     }
   };
-
-  // console.log(doctor);
-  // console.log(appointments);
-
-  // styling and MUI components from here
 
   function a11yProps(index) {
     return {
@@ -163,29 +180,100 @@ const DoctorAppointments = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const month = [
+    { name: "January" },
+    { name: "February" },
+    { name: "March" },
+    { name: "April" },
+    { name: "May" },
+    { name: "June" },
+    { name: "July" },
+    { name: "August" },
+    { name: "September" },
+    { name: "October" },
+    { name: "November" },
+    { name: "December" },
+  ];
 
-  // setOpenModals(newOpenModals);
+  const AppointmentsComponent = ({
+    appointments,
+    dateFilter,
+    doneAppointment,
+    doctor,
+  }) => {
+    const currentTime = new Date();
+  };
+
+  const currentTime = new Date();
 
   return (
     <div className="mt-3">
       <div style={{ position: "fixed" }}>
-        <h2>Doctor Appointments</h2>
-
-        <ButtonGroup variant="text" sx={{ color: "black" }}></ButtonGroup>
-        <AppBar sx={{ width: "500px", background: "none", marginTop: "10px" }}>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            textColor="primary"
-            //   variant="fullWidth"
-            aria-label="action tabs example"
+        <div className="d-flex flex-row">
+          <div
+            className="d-flex flex-row row justify-content-between"
+            style={{ width: "700px" }}
           >
-            <Tab label="Pending" {...a11yProps(0)} sx={{ color: "black" }} />
-            <Tab label="Confirmed" {...a11yProps(1)} sx={{ color: "black" }} />
-            <Tab label="Completed" {...a11yProps(2)} sx={{ color: "black" }} />
-            <Tab label="Cancelled" {...a11yProps(3)} sx={{ color: "black" }} />
-          </Tabs>
-        </AppBar>
+            <h2 className="col-auto">Appointments</h2>
+            <div className="col-auto">
+              <FormControl>
+                <InputLabel id="demo-simple-select-label">Month</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  label="Choose Month"
+                  value={dateFilter}
+                  onChange={(e) => {
+                    setDateFilter(e.target.value);
+                  }}
+                  sx={{ width: "200px", height: "40px" }}
+                >
+                  {month.map((m) => (
+                    <MenuItem key={m.name} value={m.name}>
+                      {" "}
+                      {m.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+          </div>
+          <div className="app-bar col-auto" style={{ marginLeft: "auto" }}>
+            <ButtonGroup variant="text" sx={{ color: "black" }}></ButtonGroup>
+            <AppBar
+              sx={{ width: "500px", background: "none", marginTop: "10px" }}
+            >
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                textColor="primary"
+                //   variant="fullWidth"
+                aria-label="action tabs example"
+              >
+                <Tab
+                  label="Pending"
+                  {...a11yProps(0)}
+                  sx={{ color: "black" }}
+                />
+                <Tab
+                  label="Confirmed"
+                  {...a11yProps(1)}
+                  sx={{ color: "black" }}
+                />
+                <Tab
+                  label="Completed"
+                  {...a11yProps(2)}
+                  sx={{ color: "black" }}
+                />
+                <Tab
+                  label="Cancelled"
+                  {...a11yProps(3)}
+                  sx={{ color: "black" }}
+                />
+              </Tabs>
+            </AppBar>
+          </div>
+        </div>
         <SwipeableViews
           index={value}
           onChangeIndex={handleChangeIndex}
@@ -196,25 +284,23 @@ const DoctorAppointments = () => {
               className="d-flex flex-wrap"
               style={{
                 gap: "5px",
-                // overflowY: "auto",
-                maxHeight: "80vh",
-                // minHeight: "1000px",
+                overflowY: "auto",
+                maxHeight: "85vh",
               }}
             >
               {appointments
                 .filter((a) => a.appointmentStatus[0].status === "Pending")
                 .map((a, index) => {
                   return (
-                    <div
-                      className="d-flex flex-column"
+                    <Paper
+                      elevation={4}
+                      className="appointments-container d-flex flex-column"
                       style={{
                         width: "300px",
-                        height: "275px",
+                        height: "fit-content",
                         textAlign: "left",
-                        padding: "20px",
-                        boxShadow: "0 2px 2px",
-                        borderRadius: "10px",
-                        border: "1px solid black",
+                        padding: "10px",
+                        border: "1px solid #ccc",
                         marginLeft: "10px",
                         marginBottom: "10px",
                       }}
@@ -224,15 +310,27 @@ const DoctorAppointments = () => {
                       <h5>
                         {a.patient.first_name + " " + a.patient.last_name}
                       </h5>
-                      <a>{a.reference_num}</a>
+                      <a>REFERENCE NO. {a.reference_num}</a>
                       <a>CLINIC: {a.clinic.clinic_code}</a>
-                      <a>TIME: {a.timeslot}</a>
+                      <a>DATE: {format(a.date, "MMMM d, yyyy")}</a>
+                      <a>
+                        TIME:{" "}
+                        {doctor.timeslots
+                          .filter((t) => t._id === a.timeslot)
+                          .map((ft) => ft.start + " - " + ft.end)}
+                      </a>
                       <a>BOOKED AT: {format(a.createdAt, "MMMM d, yyyy")}</a>
                       <a> Patient Notes: {a.appointment_notes}</a>
+                      <a>Contact Number: {a.patient.contact_num}</a>
                       <> </>
                       <Button
                         onClick={() => {
-                          acceptAppointment(a._id);
+                          acceptAppointment(
+                            a._id,
+                            a.patient,
+                            a.timeslot,
+                            a.date
+                          );
                         }}
                         sx={{
                           color: "white",
@@ -240,41 +338,64 @@ const DoctorAppointments = () => {
                           backgroundColor: "#2C7865",
                           alignSelf: "center",
                           marginTop: "10px",
+                          borderRadius: "5px",
+                          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
                         }}
                       >
                         Accept
                       </Button>
                       <div
-                        className="d-flex flex-row mt-4"
+                        className="d-flex flex-row mt-2 "
                         style={{ alignSelf: "center" }}
                       >
-                        <p
+                        <Link
                           style={{
                             marginRight: "10px",
                             cursor: "pointer",
-                            color: "blue",
+                            color: "Blue",
+                            textDecoration: "none",
                           }}
+                          to={`/reschedule-appointment/${a._id}`}
                         >
                           Reschedule{" "}
-                        </p>
+                        </Link>
                         <Link
-                          style={{ cursor: "pointer", color: "red" }}
+                          style={{
+                            cursor: "pointer",
+                            color: "#FF0000",
+                            textDecoration: "none",
+                          }}
                           to={`/cancel-appointment/${a._id}`}
                         >
                           Cancel
                         </Link>
-                        {/* <p
-                          style={{ cursor: "pointer", color: "red" }}
-                          onClick={() => {
-                            cancelAppointment(a._id);
-                          }}
-                        >
-                          Cancel
-                        </p> */}
                       </div>
-                    </div>
+                    </Paper>
                   );
                 })}
+              <div style={{ padding: "20px 20px" }}>
+                <Paper
+                  elevation={4}
+                  className="appointments-container d-flex flex-column"
+                  style={{
+                    width: "250px",
+                    height: "250px",
+                    textAlign: "left",
+                    padding: "35% 35%",
+                    border: "1px solid #ccc",
+                    marginLeft: "10px",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <IconButton
+                    onClick={() => {
+                      navigate("/add-appointment");
+                    }}
+                  >
+                    <AddIcon fontSize="large" />
+                  </IconButton>
+                </Paper>
+              </div>
             </div>
           </TabPanel>
 
@@ -284,80 +405,136 @@ const DoctorAppointments = () => {
               style={{
                 gap: "5px",
                 overflowY: "auto",
-                maxHeight: "calc(120vh - 300px)",
+                maxHeight: "85vh",
               }}
             >
               {appointments
-                .filter((a) => a.appointmentStatus[0].status === "Confirmed")
+                .filter(
+                  (a) =>
+                    a.appointmentStatus[0].status === "Confirmed" &&
+                    format(a.date, "MMMM") === dateFilter
+                )
                 .map((a, index) => {
+                  const appointmentTime = new Date(a.date);
+                  const isCurrentlyHappening = doctor.timeslots
+                    .filter((t) => t._id === a.timeslot)
+                    .some((ft) => {
+                      // console.log(ft.start, ft.end);
+                      // console.log(format(currentTime, "h:mm aa"));
+                      const now = "3:32 PM";
+                      return isAfter(now, ft.start) && isBefore(now, ft.end);
+                    });
+
                   return (
-                    <div
-                      className="d-flex flex-column"
+                    <Paper
+                      elevation={5}
+                      className={`appointments-container d-flex flex-column ${
+                        isCurrentlyHappening ? "currently-happening" : ""
+                      }`}
                       style={{
-                        width: "275px",
-                        height: "275px",
+                        width: "300px",
+                        height: "fit-content",
                         textAlign: "left",
-                        padding: "20px",
-                        boxShadow: "0 2px 2px",
-                        borderRadius: "10px",
-                        border: "1px solid black",
+                        padding: "10px",
+                        border: "1px solid",
                         marginLeft: "10px",
+                        marginBottom: "10px",
+                        borderColor: isCurrentlyHappening ? "red" : "#ccc",
                       }}
                       key={a._id}
                     >
                       <h5>
                         {a.patient.first_name + " " + a.patient.last_name}
                       </h5>
-                      <a>{a.reference_num}</a>
+                      <a>REFERENCE NO. {a.reference_num}</a>
                       <a>CLINIC: {a.clinic.clinic_code}</a>
-                      <a>TIME: {a.timeslot}</a>
+                      <a>DATE: {format(a.date, "MMMM d, yyyy")}</a>
+                      <a>
+                        TIME:{" "}
+                        {doctor.timeslots
+                          .filter((t) => t._id === a.timeslot)
+                          .map((ft) => ft.start + " - " + ft.end)}
+                      </a>
                       <a>BOOKED AT: {format(a.createdAt, "MMMM d, yyyy")}</a>
                       <a> Patient Notes: {a.appointment_notes}</a>
+                      <a>Contact Number: {a.patient.contact_num}</a>
                       <> </>
+                      <Button
+                        onClick={() => {
+                          doneAppointment(a._id);
+                        }}
+                        sx={{
+                          color: "white",
+                          width: "100px",
+                          backgroundColor: blueGrey[500],
+                          alignSelf: "center",
+                          marginTop: "10px",
+                          borderRadius: "5px",
+                          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        Done
+                      </Button>
                       <div
-                        className="d-flex flex-row mt-4"
+                        className="d-flex flex-row mt-2 "
                         style={{ alignSelf: "center" }}
                       >
-                        <p
+                        <Link
                           style={{
                             marginRight: "10px",
                             cursor: "pointer",
-                            color: "blue",
+                            color: "Blue",
+                            textDecoration: "none",
                           }}
+                          to={`/reschedule-appointment/${a._id}`}
                         >
                           Reschedule{" "}
-                        </p>
-                        <Link to={`/cancel-appointment/${a._id}`}>Cancel</Link>
+                        </Link>
+                        <Link
+                          style={{
+                            cursor: "pointer",
+                            color: "#FF0000",
+                            textDecoration: "none",
+                          }}
+                          to={`/cancel-appointment/${a._id}`}
+                        >
+                          Cancel
+                        </Link>
                       </div>
-                    </div>
+                    </Paper>
                   );
                 })}
             </div>
           </TabPanel>
+
           <TabPanel value={value} index={2}>
             <div
               className="d-flex flex-wrap"
               style={{
                 gap: "5px",
                 overflowY: "auto",
-                maxHeight: "calc(120vh - 300px)",
+                maxHeight: "85vh",
               }}
             >
               {appointments
-                .filter((a) => a.appointmentStatus[0].status === "Completed")
+                .filter(
+                  (a) =>
+                    a.appointmentStatus[0].status === "Completed" &&
+                    format(a.date, "MMMM") === dateFilter
+                )
                 .map((a, index) => {
                   return (
-                    <div
-                      className="d-flex flex-column"
+                    <Paper
+                      elevation={4}
+                      className="appointments-container d-flex flex-column"
                       style={{
-                        width: "275px",
-                        height: "275px",
+                        width: "300px",
+                        height: "fit-content",
                         textAlign: "left",
-                        padding: "20px",
-                        boxShadow: "0 2px 2px",
-                        borderRadius: "10px",
-                        border: "1px solid black",
+                        padding: "10px",
+                        border: "1px solid #ccc",
                         marginLeft: "10px",
+                        marginBottom: "10px",
                       }}
                       key={a._id}
                     >
@@ -365,13 +542,20 @@ const DoctorAppointments = () => {
                       <h5>
                         {a.patient.first_name + " " + a.patient.last_name}
                       </h5>
-                      <a>{a.reference_num}</a>
+                      <a>REFERENCE NO. {a.reference_num}</a>
                       <a>CLINIC: {a.clinic.clinic_code}</a>
-                      <a>TIME: {a.timeslot}</a>
+                      <a>DATE: {format(a.date, "MMMM d, yyyy")}</a>
+                      <a>
+                        TIME:{" "}
+                        {doctor.timeslots
+                          .filter((t) => t._id === a.timeslot)
+                          .map((ft) => ft.start + " - " + ft.end)}
+                      </a>
                       <a>BOOKED AT: {format(a.createdAt, "MMMM d, yyyy")}</a>
                       <a> Patient Notes: {a.appointment_notes}</a>
+                      <a>Contact Number: {a.patient.contact_num}</a>
                       <> </>
-                    </div>
+                    </Paper>
                   );
                 })}
             </div>
@@ -382,24 +566,28 @@ const DoctorAppointments = () => {
               style={{
                 gap: "5px",
                 overflowY: "auto",
-                maxHeight: "calc(120vh - 300px)",
+                maxHeight: "85vh",
               }}
             >
               {appointments
-                .filter((a) => a.appointmentStatus[0].status === "Cancelled")
+                .filter(
+                  (a) =>
+                    a.appointmentStatus[0].status === "Cancelled" &&
+                    format(a.date, "MMMM") === dateFilter
+                )
                 .map((a, index) => {
                   return (
-                    <div
-                      className="d-flex flex-column"
+                    <Paper
+                      elevation={4}
+                      className="appointments-container d-flex flex-column"
                       style={{
-                        width: "275px",
-                        height: "275px",
+                        width: "300px",
+                        height: "fit-content",
                         textAlign: "left",
-                        padding: "20px",
-                        boxShadow: "0 2px 2px",
-                        borderRadius: "10px",
-                        border: "1px solid black",
+                        padding: "10px",
+                        border: "1px solid #ccc",
                         marginLeft: "10px",
+                        marginBottom: "10px",
                       }}
                       key={a._id}
                     >
@@ -407,44 +595,20 @@ const DoctorAppointments = () => {
                       <h5>
                         {a.patient.first_name + " " + a.patient.last_name}
                       </h5>
-                      <a>{a.reference_num}</a>
+                      <a>REFERENCE NO. {a.reference_num}</a>
                       <a>CLINIC: {a.clinic.clinic_code}</a>
-                      <a>TIME: {a.timeslot}</a>
+                      <a>DATE: {format(a.date, "MMMM d, yyyy")}</a>
+                      <a>
+                        TIME:{" "}
+                        {doctor.timeslots
+                          .filter((t) => t._id === a.timeslot)
+                          .map((ft) => ft.start + " - " + ft.end)}
+                      </a>
                       <a>BOOKED AT: {format(a.createdAt, "MMMM d, yyyy")}</a>
                       <a> Patient Notes: {a.appointment_notes}</a>
+                      <a>Contact Number: {a.patient.contact_num}</a>
                       <> </>
-                      <Button
-                        onClick={() => {
-                          acceptAppointment(a._id);
-                        }}
-                        sx={{
-                          color: "white",
-                          width: "100px",
-                          backgroundColor: "#2C7865",
-                          alignSelf: "center",
-                          marginTop: "10px",
-                        }}
-                      >
-                        Accept
-                      </Button>
-                      <div
-                        className="d-flex flex-row mt-4"
-                        style={{ alignSelf: "center" }}
-                      >
-                        <p
-                          style={{
-                            marginRight: "10px",
-                            cursor: "pointer",
-                            color: "blue",
-                          }}
-                        >
-                          Reschedule{" "}
-                        </p>
-                        <p style={{ cursor: "pointer", color: "red" }}>
-                          Cancel
-                        </p>
-                      </div>
-                    </div>
+                    </Paper>
                   );
                 })}
             </div>

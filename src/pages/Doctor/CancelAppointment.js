@@ -5,12 +5,14 @@ import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
+import { Input } from "@mui/material";
 
 const CancelAppointment = () => {
+  const [reason, setReason] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
   const [appointment, setAppointment] = useState({});
-  console.log(id);
+  // console.log(id);
 
   useEffect(() => {
     const fetchApptDetails = async () => {
@@ -19,7 +21,7 @@ const CancelAppointment = () => {
           `${process.env.REACT_APP_SERVER_URL}/api/appointments/` + id
         );
 
-        console.log(appointment.data);
+        // console.log(appointment.data);
         setAppointment(appointmentData.data);
       } catch (error) {
         console.log(error);
@@ -27,6 +29,9 @@ const CancelAppointment = () => {
     };
     fetchApptDetails();
   }, []);
+
+  console.log("patient number: ", appointment?.patient?.contact_num);
+  console.log(reason);
 
   const cancel = async () => {
     try {
@@ -37,11 +42,32 @@ const CancelAppointment = () => {
         data: { appointment_id: id, status: "Cancelled" },
       });
 
-      // console.log(updatedApptStatus.data);
+      if (reason === "") {
+        const sms = await axios({
+          method: "POST",
+          url: `${process.env.REACT_APP_SERVER_URL}/api/sms/send-sms`,
+          data: {
+            phoneNumber: appointment?.patient.contact_num,
+            message: `Good day Mr/Ms. ${appointment.patient.first_name} ${appointment.patient.last_name}, Your appointment with a reference number: ${appointment.reference_num} has been cancelled.`,
+            sender_id: appointment?.doctor._id,
+          },
+        });
+        console.log(sms.data);
+      } else {
+        const sms = await axios({
+          method: "POST",
+          url: `${process.env.REACT_APP_SERVER_URL}/api/sms/send-sms`,
+          data: {
+            phoneNumber: appointment?.patient.contact_num,
+            message: `Good day Mr/Ms. ${appointment.patient.first_name} ${appointment.patient.last_name}, Your appointment with a reference number: ${appointment.reference_num} has been cancelled. Reason for cancellation: ${reason}`,
+            sender_id: appointment?.doctor._id,
+          },
+        });
+        console.log(sms.data);
+      }
+
       if (updatedApptStatus) {
         toast.success("Appointment Cancelled!");
-
-        // console.log(changeStatus);
       }
     } catch (error) {
       console.log(error);
@@ -51,7 +77,19 @@ const CancelAppointment = () => {
   console.log(appointment);
 
   return (
-    <div className="d-flex flex-column mt-3 ml-2">
+    <div
+      className="d-flex flex-column mt-3 ml-2"
+      style={{
+        left: "40%",
+        top: "10%",
+        position: " fixed",
+        border: "1px solid #ccc",
+        padding: "10px",
+        borderRadius: "10px",
+        textAlign: "center",
+        alignItems: "center",
+      }}
+    >
       <h4>Cancel {appointment.patient?.first_name}'s appointment</h4>
       <div className="d-flex flex-wrap mt-5">
         <div
@@ -63,7 +101,7 @@ const CancelAppointment = () => {
             padding: "20px",
             boxShadow: "0 2px 2px",
             borderRadius: "10px",
-            border: "1px solid black",
+            border: "1px solid #536872",
             marginLeft: "10px",
             marginBottom: "10px",
           }}
@@ -96,6 +134,24 @@ const CancelAppointment = () => {
           Confirm cancellation
         </Button>
       </div>
+
+      <Input
+        placeholder="Reason (Optional)"
+        multiline
+        sx={{
+          marginTop: "10px",
+          width: "300px",
+          height: "fit-content",
+          fontSize: "16px",
+          lineHeight: "1.5",
+          textAlign: "left",
+          overflowY: "auto",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+          resize: "none",
+        }}
+        onChange={(e) => setReason(e.target.value)}
+      />
     </div>
   );
 };

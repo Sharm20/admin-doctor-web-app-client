@@ -13,6 +13,7 @@ import {
   TableSortLabel,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import calculateAge from "../../functions/calculateAge";
 
 const Patients = () => {
   const [appointments, setAppointments] = useState([]);
@@ -35,7 +36,7 @@ const Patients = () => {
       setPatients(data.appointments.map((a) => a.patient));
     });
   }, []);
-  //   console.log("patients: ", patients);
+  console.log("patients: ", patients);
   return (
     <>
       <div
@@ -82,6 +83,7 @@ const Patients = () => {
                   {" "}
                   <h5>Number</h5>
                 </TableCell>
+                {/* <TableCell>DOB</TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -89,15 +91,29 @@ const Patients = () => {
                 return (
                   <TableRow key={p?._id}>
                     <TableCell>{p.first_name + " " + p.last_name}</TableCell>
-                    <TableCell>{p.gender}</TableCell>
-                    <TableCell>{p.date_of_birth}</TableCell>
-                    <TableCell>{p.contact_num}</TableCell>
-                    <TableCell>{p.contact_person}</TableCell>
-                    <TableCell>{p.contact_p_number}</TableCell>
+                    <TableCell>{p.gender ? p.gender : "others"}</TableCell>
+                    <TableCell>
+                      {p.date_of_birth
+                        ? Math.abs(calculateAge(p.date_of_birth)) +
+                          (Math.abs(calculateAge(p.date_of_birth)) <= 1
+                            ? " year old"
+                            : " years old")
+                        : "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      {p.contact_num ? p.contact_num : "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      {p.contact_person ? p.contact_person : "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      {p.contact_p_number ? p.contact_p_number : "N/A"}
+                    </TableCell>
+                    {/* <TableCell>{p.date_of_birth}</TableCell> */}
                     <TableCell sx={{ display: "flex", flexDirection: "row" }}>
-                      <Link to={`/update-doctor/${p._id}`} className="btn">
+                      {/* <Link to={`/update-doctor/${p._id}`} className="btn">
                         <EditIcon fontSize="small" />
-                      </Link>
+                      </Link> */}
                       {/* <Delete id={p._id} endpoint={"patients"} />    */}
                     </TableCell>
                   </TableRow>

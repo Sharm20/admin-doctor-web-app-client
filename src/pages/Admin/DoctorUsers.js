@@ -100,14 +100,8 @@ const DoctorUsers = () => {
   const handleSearch = (e) => {
     const newSearch = e.target.value;
     setSearch(newSearch);
-    // setOffset(0);
-    // setDoctor([]);
     if (newSearch === "") {
       window.location.reload();
-      // setOffset((prev) => prev);
-      // setDoctor([]);
-      // setHasMoreData(true);
-      // fetchData();
     }
   };
 
@@ -155,7 +149,11 @@ const DoctorUsers = () => {
               </div>
             </div>
             <div className="d-flex align-items-center gap-3 ">
-              <SearchComponent onChange={handleSearch} label={"Search User"} />
+              <SearchComponent
+                onChange={handleSearch}
+                onClick={searchDoctor}
+                label={"Search User"}
+              />
               <Button
                 // variant="outlined"
                 onClick={() => {

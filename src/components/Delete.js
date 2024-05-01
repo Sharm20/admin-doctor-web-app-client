@@ -30,7 +30,7 @@ const Delete = ({ endpoint, id }) => {
   };
   return (
     <IconButton onClick={handleDelete}>
-      <DeleteIcon />
+      <DeleteIcon fontSize="large" />
     </IconButton>
   );
 };

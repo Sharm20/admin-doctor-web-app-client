@@ -1,7 +1,13 @@
 import { useContext, useEffect } from "react";
+import Chatlist from "../../components/Chatlist";
 import AuthContext from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import CommentIcon from "@mui/icons-material/Comment";
+import IconButton from "@mui/material/IconButton";
 // import SendMessage from "../../functions/sendSMS";
 
 const Inbox = () => {
@@ -15,11 +21,7 @@ const Inbox = () => {
   });
 
   // console.log(user);
-  return (
-    <div className="mt-3">
-      <h1>{username}'s Inbox</h1>
-    </div>
-  );
+  return <Chatlist />;
 };
 
 export default Inbox;

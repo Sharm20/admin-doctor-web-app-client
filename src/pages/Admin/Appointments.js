@@ -12,6 +12,8 @@ import {
   TableSortLabel,
 } from "@mui/material";
 import { format } from "date-fns";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import SearchComponent from "../../components/Search";
 import Delete from "../../components/Delete";
@@ -24,38 +26,17 @@ const Appointments = () => {
   const [offset, setOffset] = useState(0);
   const [hasMoreData, setHasMoreData] = useState(true);
   const [search, setSearch] = useState("");
+  const [month, setMonth] = useState("");
 
   const fetchData = async () => {
     try {
       const appointment = await axios.get(
-        `${process.env.REACT_APP_SERVER_URL}/api/appointments?offset=${offset}&limit=15&search=${search}`
+        `${process.env.REACT_APP_SERVER_URL}/api/appointments?offset=${offset}&limit=10&search=${search}&month=${month}`
       );
       console.log(appointment.data);
       // const apptData = appointment.data;
-      const apptData = await Promise.all(
-        appointment.data.map(async (appt) => {
-          try {
-            const doctors = await axios.get(
-              `${process.env.REACT_APP_SERVER_URL}/api/doctors/${appt.doctor}`
-            );
-
-            const clinics = await axios.get(
-              `${process.env.REACT_APP_SERVER_URL}/api/clinics/${appt.clinic}`
-            );
-            const doctor = doctors.data ? doctors.data : "undefined";
-            const clinic = clinics.data ? clinics.data : "undefined";
-            return { ...appt, doctor, clinic };
-          } catch (error) {
-            console.error(
-              `Error fetching doctor details for appointment ${appt._id}:`,
-              error
-            );
-            setAppointments(appointment.data);
-          }
-        })
-      );
       if (appointment.data.length > 0) {
-        setAppointments((prev) => [...prev, ...apptData]);
+        setAppointments((prev) => [...prev, ...appointment.data]);
       } else {
         setHasMoreData(false);
       }
@@ -93,7 +74,7 @@ const Appointments = () => {
       const scrollHeight = document.documentElement.scrollHeight;
       const currentHeight = window.scrollY + window.innerHeight;
       if (currentHeight + 1 >= scrollHeight) {
-        setOffset((prevOffset) => prevOffset + 15);
+        setOffset((prevOffset) => prevOffset + 10);
       }
     };
     window.addEventListener("scroll", handleScroll);
@@ -101,6 +82,21 @@ const Appointments = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [offset]);
+
+  const monthOptions = [
+    { name: "January", value: 1 },
+    { name: "February", value: 2 },
+    { name: "March", value: 3 },
+    { name: "April", value: 4 },
+    { name: "May", value: 5 },
+    { name: "June", value: 6 },
+    { name: "July", value: 7 },
+    { name: "August", value: 8 },
+    { name: "September", value: 9 },
+    { name: "October", value: 10 },
+    { name: "November", value: 11 },
+    { name: "December", value: 12 },
+  ];
 
   return (
     <>
@@ -129,6 +125,25 @@ const Appointments = () => {
                 Filter
               </Button> */}
             </div>
+          </div>
+          <div className="mt-3">
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              label="Choose Month"
+              value={month}
+              onChange={(e) => {
+                setMonth(e.target.value);
+              }}
+              sx={{ width: "200px", height: "40px" }}
+            >
+              {monthOptions.map((m) => (
+                <MenuItem key={m.name} value={m.value}>
+                  {" "}
+                  {m.name}
+                </MenuItem>
+              ))}
+            </Select>
           </div>
           <div className="d-flex align-items-center gap-3 mt-3">
             <SearchComponent
@@ -163,9 +178,7 @@ const Appointments = () => {
                 <TableCell>
                   <h5>Date</h5>
                 </TableCell>
-                <TableCell>
-                  <h5>Time</h5>
-                </TableCell>
+                <TableCell></TableCell>
                 <TableCell>
                   <h5>Status</h5>
                 </TableCell>
@@ -188,31 +201,34 @@ const Appointments = () => {
                       {appt?.patient.first_name} {appt?.patient.last_name}
                     </TableCell>
                     {console.log(appt?.patient.first_name)}
-                    <TableCell>April 6, 2024</TableCell>
-                    <TableCell>{appt?.timeslot}</TableCell>
                     <TableCell>
+                      {format(appt.date, "MMMM d, yyyy")} {appt.date}
+                    </TableCell>
+                    <TableCell></TableCell>
+                    <TableCell>
+                      {/* {appt?.appointmentStatus[0].status} */}
                       {appt?.appointmentStatus[0].status === "Cancelled" ? (
                         <StatusIndicator
                           background={"#b23d3c"}
-                          status={appt?.status}
+                          status={appt?.appointmentStatus[0].status}
                           paddingLeft={"7px"}
                         />
-                      ) : appt?.status === "Completed" ? (
+                      ) : appt?.appointmentStatus[0].status === "Completed" ? (
                         <StatusIndicator
                           background={"#5a9f68"}
-                          status={appt?.status}
+                          status={appt?.appointmentStatus[0].status}
                           paddingLeft={"4px"}
                         />
-                      ) : appt?.status === "Confirmed" ? (
+                      ) : appt?.appointmentStatus[0].status === "Confirmed" ? (
                         <StatusIndicator
                           background={"#69aeff"}
-                          status={appt?.status}
+                          status={appt?.appointmentStatus[0].status}
                           paddingLeft={"5px"}
                         />
-                      ) : appt?.status === "Scheduled" ? (
+                      ) : appt?.appointmentStatus[0].status === "Scheduled" ? (
                         <StatusIndicator
                           background={"#ff6f69"}
-                          status={appt?.status}
+                          status={appt?.appointmentStatus[0].status}
                           paddingLeft={"5px"}
                         />
                       ) : (

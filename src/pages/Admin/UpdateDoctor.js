@@ -3,6 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import Delete from "../../components/Delete";
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -318,33 +319,38 @@ const UpdateDoctor = () => {
             />
           </div>
 
-          <div className="mt-3"></div>
           {/* <div className="form-group">
             <DynamicInput />{" "}
           </div> */}
 
-          <div></div>
-          <Box sx={{ width: "200px" }}>
-            <FormControl fullWidth>
-              <InputLabel
-                id="demo-simple-select-label"
-                sx={{ marginTop: "20px" }}
-              >
-                Status
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={is_active}
-                label="Status"
-                onChange={handleChange}
-                sx={{ marginTop: "20px" }}
-              >
-                <MenuItem value={true}>Active</MenuItem>
-                <MenuItem value={false}>Inactive</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
+          <div className="d-flex flex-row row justify-content-between">
+            <div className="col-auto">
+              <Box sx={{ width: "200px" }}>
+                <FormControl fullWidth>
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ marginTop: "20px" }}
+                  >
+                    Status
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={is_active}
+                    label="Status"
+                    onChange={handleChange}
+                    sx={{ marginTop: "20px" }}
+                  >
+                    <MenuItem value={true}>Active</MenuItem>
+                    <MenuItem value={false}>Inactive</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>{" "}
+            </div>
+            <div className="col-auto mt-3">
+              <Delete id={id} endpoint={"doctors"} />
+            </div>
+          </div>
 
           <input type="submit" value="SAVE" className="btn btn-primary mt-3" />
         </form>

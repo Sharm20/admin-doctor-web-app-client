@@ -15,7 +15,14 @@ const LetterAvatars = () => {
     // const storedUser = JSON.parse(localStorage.getItem("user"));
     if (user) {
       setFirstName(user.first_name);
-      setLastName(user.last_name);
+      setLastName(user.last_name.split(" ")[0]);
+      console.log("last name: ", user.last_name.split(" ")[0]);
+
+      // if (user.last_name.split(" ") !== 0) {
+      //   setLastName(user.last_name.split(" ")[0]);
+      // } else if (user.last_name.split(" " == 0)) {
+      //   setFirstName(user.first_name);
+      // }
     }
   }, []);
 
@@ -40,7 +47,7 @@ const LetterAvatars = () => {
         position: "fixed",
         bgcolor: blueGrey[500],
       }}
-      {...stringAvatar(name)}
+      {...stringAvatar(name ? name : "U")}
     />
   );
 };

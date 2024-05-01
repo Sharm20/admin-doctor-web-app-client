@@ -5,6 +5,7 @@ import AuthContext from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import "../App.css";
 import { Button } from "@mui/material";
+import { format } from "date-fns";
 import InputAdornment from "@mui/material/InputAdornment";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -42,7 +43,7 @@ const Login = ({}) => {
     if (user && user.username) {
       toast.success("Logged in");
       console.log(user.username);
-      navigate("/admin-dashboard");
+      navigate("/clinics");
     }
   };
 
@@ -56,9 +57,21 @@ const Login = ({}) => {
     // loginUser(credential);
     const user = await loginDoctor(credential); //called loginDoctor function
     if (user && user.username) {
+      const now = new Date().getTime();
+      const CA = new Date(user?.createdAt).getTime();
+      const createdAtDate = new Date(user?.createdAt);
+      const halfHourPassed = new Date(createdAtDate.getTime() + 30 * 60 * 1000);
       toast.success("Logged in");
-      console.log(user.username);
-      navigate("/doctor-appointments");
+
+      if (now <= halfHourPassed) {
+        toast.info(
+          "You are advised to change your password immediately after the creation of your account. Please disregard this message if you already changed your password.",
+          { autoClose: false }
+        );
+        navigate("/edit-doctor-profile");
+      } else {
+        navigate("/doctor-appointments");
+      }
     }
   };
 
@@ -152,9 +165,9 @@ const Login = ({}) => {
                   Log in as Doctor
                 </button>
               </div>
-              <Link style={{ marginTop: "20px" }} className="mt-2">
+              {/* <Link style={{ marginTop: "20px" }} className="mt-2">
                 Forgot Password?
-              </Link>
+              </Link> */}
             </form>
           </div>
         </div>

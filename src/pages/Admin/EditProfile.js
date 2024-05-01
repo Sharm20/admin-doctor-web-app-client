@@ -231,6 +231,8 @@ const EditProfile = () => {
                     value={credentials.newPassword}
                     onChange={handleInput}
                     placeholder="enter new password"
+                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}"
+                    title="Password must be at least 6 characters, and contain at least one number, one lowercase and one uppercase letter."
                     required
                   />
                 </div>

@@ -265,7 +265,6 @@ const Doctors = () => {
                       <Link to={`/update-doctor/${d._id}`} className="btn">
                         <EditIcon fontSize="small" />
                       </Link>
-                      <Delete id={d._id} endpoint={"doctors"} />
                     </TableCell>
                   </TableRow>
                 );

@@ -18,6 +18,8 @@ import Chip from "@mui/material/Chip";
 
 const EditDoctorProfile = () => {
   const { user } = useContext(AuthContext);
+  const { setUser } = useContext(AuthContext);
+  const { setIsDoctorLoggedin } = useContext(AuthContext);
   // const { specializations } = useContext(AuthContext);
   // const { clinics } = useContext(AuthContext);
   const userType = user && user.userType;
@@ -48,6 +50,13 @@ const EditDoctorProfile = () => {
     confirmPassword: "",
   });
 
+  const logout = async () => {
+    await setUser(null);
+    await setIsDoctorLoggedin(false);
+    localStorage.clear();
+    navigate("/");
+    toast.success("Logged out");
+  };
   // const [selectedDays, setSelectedDays] = useState(Days);
   // console.log(clinics);
   // const [days, setDays] = useState(Days);
@@ -213,10 +222,12 @@ const EditDoctorProfile = () => {
   const handleSetOperatingHours = async (e) => {
     e.preventDefault();
     try {
-      if (!weeklySched) {
-        toast.error("empty fields");
+      console.log("weekly sched", weeklySched);
+      if (!weeklySched && Object.keys(weeklySched.days).length === 0) {
+        toast.error("Please fill out the operating hours");
+        return;
       }
-      console.log(weeklySched);
+
       const operatingHours = await axios({
         method: "PUT",
         url: `${process.env.REACT_APP_SERVER_URL}/api/doctors/${user._id}`,
@@ -278,6 +289,11 @@ const EditDoctorProfile = () => {
         url: `${process.env.REACT_APP_SERVER_URL}/api/doctors/${user._id}`,
         data: data,
       });
+
+      if (data.newPassword && newDoctor.data) {
+        // toast.success("CHANGES SAVED");
+        logout();
+      }
 
       if (newDoctor) {
         // console.log(newDoctor.data);
@@ -553,6 +569,8 @@ const EditDoctorProfile = () => {
                     name="confirmPassword"
                     value={detail.confirmPassword}
                     onChange={handleInput}
+                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}"
+                    title="Password must be at least 6 characters, and contain at least one number, one lowercase and one uppercase letter."
                     placeholder="confirm new password"
                   />
                 </div>
