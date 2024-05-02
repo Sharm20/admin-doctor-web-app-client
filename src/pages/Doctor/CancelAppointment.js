@@ -48,7 +48,7 @@ const CancelAppointment = () => {
           url: `${process.env.REACT_APP_SERVER_URL}/api/sms/send-sms`,
           data: {
             phoneNumber: appointment?.patient.contact_num,
-            message: `Good day Mr/Ms. ${appointment.patient.first_name} ${appointment.patient.last_name}, Your appointment with a reference number "${appointment.reference_num}" has been cancelled.`,
+            message: `Good day Mr/Ms. ${appointment.patient.first_name} ${appointment.patient.last_name}, Your appointment with a reference number "${appointment.reference_num}" has been CANCELLED.`,
             sender_id: appointment?.doctor._id,
           },
         });

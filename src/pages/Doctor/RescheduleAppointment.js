@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import AuthContext from "../../context/AuthContext";
 import Button from "@mui/material/Button";
-
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
@@ -16,6 +15,7 @@ import Paper from "@mui/material/Paper";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import axios from "axios";
 import { format } from "date-fns";
+import { dateCalendarClasses } from "@mui/x-date-pickers/DateCalendar";
 
 const RescheduleAppointment = () => {
   const { user } = useContext(AuthContext);
@@ -26,12 +26,8 @@ const RescheduleAppointment = () => {
     timeslot: "",
     start: "",
     end: "",
-    appointment_notes: "",
   });
-  const [clinic, setClinic] = useState({
-    clinic_id: "",
-    clinic_code: "",
-  });
+
   const [chosenDate, setChosenDate] = useState();
   const [timeslots, setTimeSlots] = useState([]);
 
@@ -68,8 +64,8 @@ const RescheduleAppointment = () => {
           }
         } catch (err) {
           if (err.response) {
-            const errorMessage = err.response.data.message;
-            toast.error(errorMessage);
+            // const errorMessage = err.response.data.message;
+            toast.info(errorMessage);
           } else if (err.request) {
             toast.error("No response from server");
           } else {
@@ -82,9 +78,10 @@ const RescheduleAppointment = () => {
     getBookingAndWalkInTimeSlots();
   }, [chosenDate]);
 
-  console.log("appointment: ", appointment);
+  // console.log("appointment: ", appointment);
   const handleTimeslot = (e) => {
     const selectedTime = e.target.value;
+    console.log("timeslot id: ", selectedTime);
     const timeslotData = timeslots.bookable.find(
       (ts) => ts.timeslot_id === selectedTime
     );
@@ -95,17 +92,70 @@ const RescheduleAppointment = () => {
       start: timeslotData.start,
       end: timeslotData.end,
     });
-    setClinic({
-      ...clinic,
-      clinic_id: timeslotData.clinic_id,
-      clinic_code: timeslotData.clinic_code,
-    });
   };
 
   const handleDate = (e) => {
     setOtherFields({ ...otherFields, date: e.$d.toISOString() });
     setChosenDate(e.$d.toISOString());
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const data = {
+      date: otherFields.date,
+      timeslot_id: otherFields.timeslot,
+      start: otherFields.start,
+      end: otherFields.end,
+    };
+
+    console.log("data: ", otherFields);
+
+    if (
+      !otherFields.date ||
+      !otherFields.timeslot ||
+      !otherFields.start ||
+      !otherFields.end
+    ) {
+      return toast.error("Input all fields.");
+    }
+    try {
+      const updatedAppointment = await axios({
+        method: "PUT",
+        url: `${process.env.REACT_APP_SERVER_URL}/api/appointments/resched/${id}`,
+        data: data,
+      });
+
+      await axios({
+        method: "POST",
+        url: `${process.env.REACT_APP_SERVER_URL}/api/sms/send-sms`,
+        data: {
+          phoneNumber: appointment?.patient.contact_num,
+          message: `Good day Mr/Ms. ${
+            appointment.patient.first_name
+          }! Your appointment with Dr. ${user.last_name} at Clinic ${
+            appointment.clinic.clinic_code
+          }, was RESCHEDULED on ${format(
+            otherFields.date,
+            "MMMM d, yyyy"
+          )}, at ${otherFields.start + " - " + otherFields.end}.`,
+          sender_id: user._id,
+        },
+      }).then(toast.success("Text notification sent"));
+
+      if (updatedAppointment.data) {
+        console.log("Updates: ", updatedAppointment);
+        toast.info(updatedAppointment.data.message);
+      }
+    } catch (error) {
+      if (error.res) {
+        const errorMessage = error.response.data.error;
+        console.log(error);
+        toast.error(errorMessage);
+      }
+    }
+  };
+  console.log(appointment.patient?.contact_num);
+
   return (
     <div className="mt-3">
       <h3>Reschedule</h3>
@@ -159,13 +209,18 @@ const RescheduleAppointment = () => {
                   <b>
                     {appointment.patient?.first_name}{" "}
                     {appointment.patient?.last_name}
-                  </b>  
+                  </b>
                 </h5>
                 <a>
                   Reference No. <b>{appointment.reference_num}</b>
                 </a>
                 <a>
-                  Date: <b>{format(appointment.date, "MMMM d, yyy")}</b>
+                  Date:{" "}
+                  <b>
+                    {appointment.date
+                      ? format(appointment?.date, "MMMM d, yyyy")
+                      : "none"}
+                  </b>
                 </a>
                 <a>
                   CLINIC: <b>{appointment.clinic?.clinic_code}</b>
@@ -201,7 +256,7 @@ const RescheduleAppointment = () => {
                     id="demo-simple-select-label"
                     sx={{ marginTop: "20px" }}
                   ></InputLabel>
-                  <DatePicker onChange={handleDate} />
+                  <DatePicker required onChange={handleDate} />
                 </FormControl>
               </Box>
 
@@ -244,9 +299,7 @@ const RescheduleAppointment = () => {
             </div>
 
             <Button
-              onClick={() => {
-                cancel().then(navigate("/doctor-appointments"));
-              }}
+              onClick={handleSubmit}
               sx={{
                 color: "white",
                 width: "fit-content",

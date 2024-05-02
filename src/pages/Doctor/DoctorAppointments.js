@@ -304,7 +304,8 @@ const DoctorAppointments = () => {
                       <a>DATE: {format(a.date, "MMMM d, yyyy")}</a>
                       <a>
                         TIME:{" "}
-                        {a.timeslot.start + " " + a.timeslot.end || a.timeslot}
+                        {a.timeslot?.start + " " + a.timeslot?.end ||
+                          a.timeslot}
                       </a>
                       <a>BOOKED AT: {format(a.createdAt, "MMMM d, yyyy")}</a>
                       <a>
@@ -440,12 +441,7 @@ const DoctorAppointments = () => {
                       <a>REFERENCE NO. {a.reference_num}</a>
                       <a>CLINIC: {a.clinic.clinic_code}</a>
                       <a>DATE: {format(a.date, "MMMM d, yyyy")}</a>
-                      <a>
-                        TIME:{" "}
-                        {doctor.timeslots
-                          .filter((t) => t._id === a.timeslot)
-                          .map((ft) => ft.start + " - " + ft.end)}
-                      </a>
+                      <a>TIME: {a.timeslot?.start + " - " + a.timeslot?.end}</a>
                       <a>BOOKED AT: {format(a.createdAt, "MMMM d, yyyy")}</a>
                       <a>
                         {" "}
@@ -540,12 +536,7 @@ const DoctorAppointments = () => {
                       <a>REFERENCE NO. {a.reference_num}</a>
                       <a>CLINIC: {a.clinic.clinic_code}</a>
                       <a>DATE: {format(a.date, "MMMM d, yyyy")}</a>
-                      <a>
-                        TIME:{" "}
-                        {doctor.timeslots
-                          .filter((t) => t._id === a.timeslot)
-                          .map((ft) => ft.start + " - " + ft.end)}
-                      </a>
+                      <a>{a.timeslot?.start + " - " + a.timeslot?.end}</a>
                       <a>BOOKED AT: {format(a.createdAt, "MMMM d, yyyy")}</a>
                       <a>
                         {" "}
@@ -597,12 +588,7 @@ const DoctorAppointments = () => {
                       <a>REFERENCE NO. {a.reference_num}</a>
                       <a>CLINIC: {a.clinic.clinic_code}</a>
                       <a>DATE: {format(a.date, "MMMM d, yyyy")}</a>
-                      <a>
-                        TIME:{" "}
-                        {doctor.timeslots
-                          .filter((t) => t._id === a.timeslot)
-                          .map((ft) => ft.start + " - " + ft.end)}
-                      </a>
+                      <a>{a.timeslot?.start + " - " + a.timeslot?.end}</a>
                       <a>BOOKED AT: {format(a.createdAt, "MMMM d, yyyy")}</a>
                       <a>
                         {" "}

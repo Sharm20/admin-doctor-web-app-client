@@ -38,7 +38,6 @@ import Patients from "./pages/Doctor/Patients";
 import CancelAppointment from "./pages/Doctor/CancelAppointment";
 import RescheduleAppointment from "./pages/Doctor/RescheduleAppointment";
 import AddAppointment from "./pages/Doctor/AddAppointment";
-import Reschedule from "./pages/Doctor/Reschedule";
 
 const App = () => {
   return (
@@ -296,15 +295,6 @@ const App = () => {
               element={
                 <Layout>
                   <AddAppointment />
-                </Layout>
-              }
-            />
-
-            <Route
-              path="/reschedule-appointment"
-              element={
-                <Layout>
-                  <Reschedule />
                 </Layout>
               }
             />

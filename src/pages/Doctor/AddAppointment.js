@@ -179,7 +179,7 @@ const AddAppointment = () => {
             toast.success("Text notification sent!");
           }
         } catch (error) {
-          toast.error(error.response.data.error);
+          toast.error(error.response.data.error) || toast.error("Failed");
         }
       }
     } catch (error) {
